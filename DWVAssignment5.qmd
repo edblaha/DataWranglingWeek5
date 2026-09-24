@@ -1,0 +1,112 @@
+---
+title: "DWVAssignment5.qmd"
+format: html
+---
+
+## 2. Re-code 5-category ideology
+
+```{r}
+library(tidyverse)
+library(haven)
+ces <- read_dta("~/DataWrangling/Week5/CES 2006-2024 Cumulative/cumulative_2006-2024.dta")
+ces2024 <- ces |> filter(year == 2024)
+print_labels(ces2024$ideo5)
+
+ces2024 <- ces2024 |>
+  mutate(ideo5_recode = case_when(
+    ideo5 %in% 1:2 ~ -1,
+    ideo5 %in% 3 ~ 0,
+    ideo5 %in% 4:5 ~ 1,
+    ideo5 == 6    ~ NA
+  ))
+```
+
+## 3. Re-code presidential vote
+
+```{r}
+print_labels(ces2024$voted_pres_24)
+ces2024 <- ces2024 |>
+  mutate(voted_pres_24_recode = case_when(
+    voted_pres_24 %in% 3:8 ~ NA,
+    voted_pres_24 == 1 ~ 1, 
+     voted_pres_24 == 2 ~ 2
+  ))
+```
+
+## 4. Table
+
+```{r}
+ces2024 <- ces2024 |>
+mutate(ideo5_recode2 = case_when(
+  ideo5 %in% 1:2 ~ 1,
+  ideo5 == 3 ~ NA,
+  ideo5 %in% 4:5 ~ 2,
+  ideo5 == 6 ~ NA))
+    
+VoteShare = table(Vote = ces2024$voted_pres_24_recode, Ideology = ces2024$ideo5_recode2)
+VoteShare
+VoteShare1 = prop.table(VoteShare, 2)
+VoteShare1
+
+
+```
+
+2.7% of liberal voters voted for Donald Trump, while 7.2% of conservative voters voted for Kamala Harris.
+
+## 5. Rent or own
+
+```{r}
+print_labels(ces2024$ownhome)
+
+ces2024 <- ces2024 |>
+  mutate(ownhome_recode = case_when(
+    ownhome == 1 ~ 1, 
+    ownhome == 2 ~ 2,
+    ownhome == 3 ~ NA
+  ))
+
+```
+
+## 6. Rent or own table
+
+```{r}
+print_labels(ces2024$ownhome)
+
+ces2024 <- ces2024 |>
+  mutate(ownhome_recode = case_when(
+    ownhome == 1 ~ 1, 
+    ownhome == 2 ~ 2,
+    ownhome == 3 ~ NA
+  ))
+
+OwnHomeVote = table(Vote = ces2024$voted_pres_24_recode, HomeOwnership = ces2024$ownhome_recode)
+OwnHomeVote
+OwnHomeVote1 = prop.table(OwnHomeVote, 2)
+OwnHomeVote1
+
+
+```
+
+48.4% of homeowners who voted for one of the two major candidates voted for Trump, while 51.6% of homeowners voted for Harris. 64.8% of voters who rent voted for Harris, while 35.2% voted for Trump.
+
+## 7. Education Recode 
+```{r}
+print_labels(ces2024$educ)
+ces2024 <- ces2024 |>
+  mutate(educ_recode = case_when(
+    educ %in% 1:2 ~ 1, 
+    educ %in% 3:4 ~ 2,
+    educ == 5 ~ 3,
+    educ == 6 ~ 4
+  ))
+
+```
+## 8. Education and voting table 
+```{r}
+EducationVote = table(Vote = ces2024$voted_pres_24_recode, EducationLevel = ces2024$educ_recode)
+EducationVote
+EducationVote1 = prop.table(EducationVote, 2)
+EducationVote1
+
+```
+The data demonstrate that as education level rises, the proportion of individuals who voted for Harris increases, and the proportion who voted for Trump decreases. Notably, those with a post-graduate education are significantly more likely to have voted for Harris than any other group. 
